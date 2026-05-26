@@ -5,6 +5,7 @@ import { prisma } from '../../../lib/prisma';
 import { QUEUE_NAMES } from '../queue';
 import { dicomService } from '../../../modules/dicom/dicom.service';
 import { cleanupStudy } from '../../storage/storage-manager';
+import { ordersService } from '../../../modules/orders/orders.service';
 
 export interface StoreScuJob {
   orderId: string;
@@ -20,6 +21,9 @@ export function startStoreScuWorker(): Worker {
       const { orderId, dicomFileId, accessionNumber, processedPath } = job.data;
 
       logger.info({ accessionNumber, jobId: job.id }, 'Executing storescu');
+
+      // Ensure ServiceRequest resource is created in SATUSEHAT first
+      await ordersService.ensureServiceRequest(orderId);
 
       const result = await dicomService.sendToRouter(processedPath);
 

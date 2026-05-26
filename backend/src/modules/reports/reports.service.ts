@@ -32,7 +32,7 @@ export class ReportsService {
     const radiologist = await prisma.user.findUnique({ where: { id: radiologistId } });
     if (!radiologist) throw new NotFoundError('User', radiologistId);
 
-    const now = new Date().toISOString();
+    const orderTime = order.timeOrdered ? order.timeOrdered.toISOString() : new Date().toISOString();
 
     // -------------------------------------------------------------------------
     // Step 1: Send Observation to SATUSEHAT
@@ -48,8 +48,8 @@ export class ReportsService {
         loincCode: order.exam.loincCode,
         loincDisplay: order.exam.loincDisplay,
         observationValue: observation,
-        effectiveDateTime: now,
-        issuedDateTime: now,
+        effectiveDateTime: orderTime,
+        issuedDateTime: orderTime,
       });
 
       let observationResponse: any = null;
@@ -95,8 +95,9 @@ export class ReportsService {
         diagnosaCode: order.diagnosaCode || '',
         diagnosaDisplay: order.diagnosaDisplay || '',
         conclusion: diagnosticReport,
-        effectiveDateTime: now,
-        issuedDateTime: now,
+        effectiveDateTime: orderTime,
+        issuedDateTime: orderTime,
+        observationId: observationSatusehatId || '',
       });
 
       let diagnosticResponse: any = null;

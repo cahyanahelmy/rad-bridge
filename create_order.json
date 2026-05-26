@@ -1,0 +1,23 @@
+{
+    "encounterId": "ff616031-805f-490c-a7a3-6440bfe12e7a",
+    "mrn": "0141878",
+    "name": "Ahmad Mustofa Aji",
+    "radLocationId": "bae68116-c1ac-4e55-9790-532b5b2d24cf",
+    "requester": {
+        "pratictionerId": "1004XXXX",
+        "pratictionerName": "dr. Soni Abdullah, Sp.JP",
+        "department": "Poli Spesialis Jantung"
+    },
+    "performer": {
+        "pratictionerId": "1004XXXX",
+        "pratictionerName": "dr. Sungha Ali, Sp.Rad"
+    },
+    "examCode": "XR_SKULL_AP_LAT",
+    "timeOrdered": "2026-04-17T03:47:32+07:00",
+    "reasonCode": {
+        "code": "T14",
+        "display": "Injury of unspecified body region"
+    },
+    "observationText": "Calvaria tampak normal, Trabekulasi tulang normal, Tak tampak garis fracture, Bentuk dan ukuran sella, tursica normal,Tak tampak tanda-tanda peningkatan TIK, Tak tampak erosi, destruksi maupun proses osteolitik / steoblastik, Tak tampak soft tissue mass / swelling",
+    "diagnosticReportText": "Tak tampak fraktur"
+}

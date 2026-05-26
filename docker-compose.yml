@@ -66,6 +66,13 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    
+    command: >
+        redis-server
+        --appendonly yes
+        --maxmemory-policy noeviction
+    sysctls:
+      - vm.overcommit_memory=1
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s

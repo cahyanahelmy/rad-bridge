@@ -4,7 +4,8 @@ import { config } from '../../config';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 
-const execAsync = promisify(exec);
+const execAsync = (command: string, options: any = {}): Promise<{ stdout: string; stderr: string }> =>
+  promisify(exec)(command, { windowsHide: true, ...options }) as any;
 
 export class InfraService {
   private get runtime() {

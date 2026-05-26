@@ -4,18 +4,26 @@
 
 export interface CreateOrderPayload {
   encounterId: string;
-  locationId: string;
-  requesterPractitionerId: string;
-  radiologistPractitionerId: string;
   mrn: string;
+  name: string; // Patient original name from SIMRS
+  radLocationId: string;
+  requester: {
+    pratictionerId: string;
+    pratictionerName: string;
+    department: string;
+  };
+  performer: {
+    pratictionerId: string;
+    pratictionerName: string;
+  };
+  examCode: string;
   timeOrdered: string;
-  diagnosa: {
+  reasonCode: {
     code: string;
     display: string;
   };
-  examCode: string;
-  observation?: string;
-  diagnosticReport?: string;
+  observationText?: string;
+  diagnosticReportText?: string;
 }
 
 export interface OrderResponse {

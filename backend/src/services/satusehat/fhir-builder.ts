@@ -67,6 +67,7 @@ export interface DiagnosticReportParams {
   conclusion: string;
   effectiveDateTime: string;
   issuedDateTime: string;
+  observationId: string;
 }
 
 export function buildDiagnosticReport(params: DiagnosticReportParams): FhirDiagnosticReport {

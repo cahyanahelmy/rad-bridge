@@ -29,6 +29,31 @@ module.exports = {
 
   /*
   |--------------------------------------------------------------------------
+  | PM2 Process Orchestration
+  |--------------------------------------------------------------------------
+  |
+  | Configuration for PM2 process manager to run both backend and frontend.
+  |
+  */
+  apps: [
+    {
+      name: "risbridge-backend",
+      script: "./dist/server.js",
+      cwd: "./backend",
+      env: {
+        NODE_ENV: "production"
+      }
+    },
+    {
+      name: "risbridge-frontend",
+      script: "./node_modules/vite/bin/vite.js",
+      args: "preview",
+      cwd: "./frontend"
+    }
+  ],
+
+  /*
+  |--------------------------------------------------------------------------
   | Application Configuration
   |--------------------------------------------------------------------------
   |

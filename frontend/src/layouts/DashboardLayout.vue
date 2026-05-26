@@ -12,7 +12,7 @@
 
       <!-- Navigation -->
       <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-        <router-link to="/" class="sidebar-link" active-class="active" :class="{ active: $route.name === 'dashboard' }">
+        <router-link to="/" class="sidebar-link" exact-active-class="active">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
           <span>Dashboard</span>
         </router-link>

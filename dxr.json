@@ -1,0 +1,64 @@
+{
+    "resourceType": "DiagnosticReport",
+    "identifier": [
+        {
+            "system": "http://sys-ids.kemkes.go.id/diagnostic/{{OrgId}}/rad",
+            "use": "official",
+            "value": "{{OrgId}}"
+        }
+    ],
+    "status": "final",
+    "category": [
+        {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                    "code": "RAD",
+                    "display": "Radiology"
+                }
+            ]
+        }
+    ],
+    "code": {
+        "coding": [
+            {
+                "system": "http://loinc.org",
+                "code": "24648-8",
+                "display": "XR Chest PA upright"
+            }
+        ]
+    },
+    "subject": {
+        "reference": "Patient/{{PatientId}}"
+    },
+    "encounter": {
+        "reference": "Encounter/{{Encounter_uuid}}"
+    },
+    "effectiveDateTime": "{{time_arrived}}",
+    "issued": "{{time_arrived}}",
+    "performer": [
+        {
+            "reference": "Practitioner/{{Practitioner_id}}",
+            "display": "{{Practitioner_Name}}"
+        },
+        {
+            "reference": "Organization/{{OrgId}}"
+        }
+    ],
+    "imagingStudy": [
+        {
+            "reference": "ImagingStudy/0235c4fb-cd82-41c3-9c5d-a73d25f598c7"
+        }
+    ],
+    "result": [
+        {
+            "reference": "Observation/{{Observation_Rad}}"
+        }
+    ],
+    "basedOn": [
+        {
+            "reference": "ServiceRequest/{{ServiceRequest_Rad}}"
+        }
+    ],
+    "conclusion": "Cor dan pulmo tak tampak kelainan"
+}

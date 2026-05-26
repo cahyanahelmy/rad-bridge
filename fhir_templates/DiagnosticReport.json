@@ -2,8 +2,9 @@
   "resourceType": "DiagnosticReport",
   "identifier": [
     {
-      "system": "http://sys-ids.kemkes.go.id/acsn/{{organizationId}}",
-      "value": "{{accessionNumber}}"
+      "system": "http://sys-ids.kemkes.go.id/diagnostic/{{organizationId}}/rad",
+      "use": "official",
+      "value": "{{organizationId}}"
     }
   ],
   "status": "final",
@@ -28,8 +29,7 @@
     ]
   },
   "subject": {
-    "reference": "Patient/{{patientId}}",
-    "display": "{{patientName}}"
+    "reference": "Patient/{{patientId}}"
   },
   "encounter": {
     "reference": "Encounter/{{encounterId}}"
@@ -40,11 +40,9 @@
     {
       "reference": "Practitioner/{{performerId}}",
       "display": "{{performerName}}"
-    }
-  ],
-  "basedOn": [
+    },
     {
-      "reference": "ServiceRequest/{{serviceRequestId}}"
+      "reference": "Organization/{{organizationId}}"
     }
   ],
   "imagingStudy": [
@@ -52,16 +50,15 @@
       "reference": "ImagingStudy/{{imagingStudyId}}"
     }
   ],
-  "conclusion": "{{conclusion}}",
-  "conclusionCode": [
+  "result": [
     {
-      "coding": [
-        {
-          "system": "http://hl7.org/fhir/sid/icd-10",
-          "code": "{{diagnosaCode}}",
-          "display": "{{diagnosaDisplay}}"
-        }
-      ]
+      "reference": "Observation/{{observationId}}"
     }
-  ]
+  ],
+  "basedOn": [
+    {
+      "reference": "ServiceRequest/{{serviceRequestId}}"
+    }
+  ],
+  "conclusion": "{{conclusion}}"
 }

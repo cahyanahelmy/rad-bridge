@@ -69,11 +69,11 @@
           <tr v-for="order in stats.recentOrders" :key="order.id">
             <td class="font-mono text-primary-400 text-sm">{{ order.accessionNumber }}</td>
             <td>{{ order.exam?.examName }}</td>
-            <td>{{ order.patientName || order.mrn || '—' }}</td>
+            <td>{{ order.patientNameSimrs || order.patientName || order.mrn || '—' }}</td>
             <td>
               <span :class="statusBadgeClass(order.status)">{{ order.status }}</span>
             </td>
-            <td class="text-dark-400 text-sm">{{ formatDate(order.createdAt) }}</td>
+            <td class="text-dark-400 text-sm font-mono">{{ formatDate(order.timeOrdered || order.createdAt) }}</td>
           </tr>
           <tr v-if="!stats.recentOrders?.length">
             <td colspan="5" class="text-center text-dark-500 py-8">No orders yet</td>
@@ -118,7 +118,17 @@ function statusBadgeClass(status: string) {
   return map[status] || 'badge badge-info';
 }
 
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+function formatDate(d: string | Date) {
+  if (!d) return '—';
+  const date = new Date(d);
+  if (isNaN(date.getTime())) return '—';
+
+  const year = date.getFullYear();
+  const month = date.toLocaleDateString('id-ID', { month: 'short' }).replace(/\./g, '');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${year} ${month} ${day} ${hours}:${minutes}`;
 }
 </script>

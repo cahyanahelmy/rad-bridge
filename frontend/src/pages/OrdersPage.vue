@@ -58,7 +58,9 @@
             >
               <td class="font-mono text-primary-400 text-sm font-semibold">{{ order.accessionNumber }}</td>
               <td class="text-dark-300 font-mono text-sm">{{ order.mrn || '—' }}</td>
-              <td class="text-white font-medium">{{ order.patientName || '—' }}</td>
+              <td class="text-white font-medium">
+                {{ order.patientNameSimrs || order.patientName || '—' }}
+              </td>
               <td class="text-dark-300">
                 <span class="bg-dark-700/40 text-dark-300 text-[10px] font-semibold px-2 py-0.5 rounded font-mono mr-1.5 uppercase">
                   {{ order.exam?.modalityCode || '—' }}
@@ -70,7 +72,7 @@
                   {{ formatStatus(order.status) }}
                 </span>
               </td>
-              <td class="text-dark-400 text-xs">{{ formatDate(order.createdAt) }}</td>
+              <td class="text-dark-400 text-xs font-mono">{{ formatDate(order.timeOrdered || order.createdAt) }}</td>
               <td class="text-right">
                 <button class="text-primary-400 hover:text-primary-300 text-xs font-semibold">
                   Open Details →
@@ -117,9 +119,15 @@
           <div class="bg-dark-800/50 border border-dark-700/50 rounded-xl p-5 space-y-4">
             <h3 class="text-xs font-semibold text-dark-400 tracking-wider uppercase">Order Details</h3>
             <div class="space-y-3 text-sm">
-              <div>
-                <p class="text-dark-500 text-xs">Patient Name</p>
-                <p class="text-white font-medium">{{ selectedOrder.patientName || '—' }}</p>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-dark-500 text-xs">Patient Name (SIMRS)</p>
+                  <p class="text-white font-medium">{{ selectedOrder.patientNameSimrs || '—' }}</p>
+                </div>
+                <div>
+                  <p class="text-dark-500 text-xs">Patient Name (SATUSEHAT)</p>
+                  <p class="text-white font-medium">{{ selectedOrder.patientName || '—' }}</p>
+                </div>
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -133,10 +141,8 @@
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <p class="text-dark-500 text-xs">Modality</p>
-                  <span class="inline-block bg-primary-950 text-primary-400 border border-primary-900 text-xs font-bold font-mono px-2 py-0.5 rounded mt-0.5">
-                    {{ selectedOrder.exam?.modalityCode || '—' }}
-                  </span>
+                  <p class="text-dark-500 text-xs">Ordered At</p>
+                  <p class="text-white font-medium font-mono text-xs mt-0.5">{{ formatDate(selectedOrder.timeOrdered || selectedOrder.createdAt) }}</p>
                 </div>
                 <div>
                   <p class="text-dark-500 text-xs">Procedure Code</p>
@@ -145,7 +151,12 @@
               </div>
               <div>
                 <p class="text-dark-500 text-xs">Exam Description</p>
-                <p class="text-dark-200">{{ selectedOrder.exam?.examName || '—' }}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="inline-block bg-primary-950 text-primary-400 border border-primary-900 text-xs font-bold font-mono px-2 py-0.5 rounded">
+                    {{ selectedOrder.exam?.modalityCode || '—' }}
+                  </span>
+                  <p class="text-dark-200 text-sm font-medium">{{ selectedOrder.exam?.examName || '—' }}</p>
+                </div>
               </div>
               <div class="border-t border-dark-700/50 pt-3 space-y-2">
                 <div>
@@ -632,13 +643,18 @@ function logResourceClass(type: string) {
   return map[type] || 'bg-dark-700/40 text-dark-300 border border-dark-600/40';
 }
 
-function formatDate(d: string) {
+function formatDate(d: string | Date) {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+  const date = new Date(d);
+  if (isNaN(date.getTime())) return '—';
+
+  const year = date.getFullYear();
+  const month = date.toLocaleDateString('id-ID', { month: 'short' }).replace(/\./g, '');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${year} ${month} ${day} ${hours}:${minutes}`;
 }
 
 function formatSize(bytes: number) {

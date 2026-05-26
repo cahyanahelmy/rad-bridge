@@ -88,7 +88,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"encounterId\": \"2823b811-fb83-4903-a178-0cb95c808796\",\n  \"mrn\": \"102-39-44\",\n  \"locationId\": \"L001\",\n  \"requesterPractitionerId\": \"N100021\",\n  \"radiologistPractitionerId\": \"N100022\",\n  \"examCode\": \"XR_CHEST\",\n  \"timeOrdered\": \"2026-05-26T09:15:00.000Z\",\n  \"diagnosa\": {\n    \"code\": \"R05\",\n    \"display\": \"Cough\"\n  },\n  \"observation\": \"Batuk berdahak lebih dari 2 minggu\",\n  \"diagnosticReport\": \"Suspect tuberculosis\"\n}"
+              "raw": "{\n  \"encounterId\": \"ff616031-805f-490c-a7a3-6440bfe12e7a\",\n  \"mrn\": \"0141878\",\n  \"name\": \"Ahmad Mustofa Aji\",\n  \"radLocationId\": \"bae68116-c1ac-4e55-9790-532b5b2d24cf\",\n  \"requester\": {\n    \"pratictionerId\": \"1004XXXX\",\n    \"pratictionerName\": \"dr. Soni Abdullah, Sp.JP\",\n    \"department\": \"Poli Spesialis Jantung\"\n  },\n  \"performer\": {\n    \"pratictionerId\": \"1004XXXX\",\n    \"pratictionerName\": \"dr. Sungha Ali, Sp.Rad\"\n  },\n  \"examCode\": \"XR_SKULL_AP_LAT\",\n  \"timeOrdered\": \"2026-04-17T03:47:32+07:00\",\n  \"reasonCode\": {\n    \"code\": \"T14\",\n    \"display\": \"Injury of unspecified body region\"\n  },\n  \"observationText\": \"Calvaria tampak normal, Trabekulasi tulang normal, Tak tampak garis fracture, Bentuk dan ukuran sella, tursica normal,Tak tampak tanda-tanda peningkatan TIK, Tak tampak erosi, destruksi maupun proses osteolitik / steoblastik, Tak tampak soft tissue mass / swelling\",\n  \"diagnosticReportText\": \"Tak tampak fraktur\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/orders",

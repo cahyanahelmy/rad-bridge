@@ -6,7 +6,8 @@ import { config } from '../../config';
 import { logger } from '../../lib/logger';
 import type { DicomMetadata, DicomProcessingResult, StoreScuResult } from '../../types/dicom';
 
-const execAsync = promisify(exec);
+const execAsync = (command: string, options: any = {}): Promise<{ stdout: string; stderr: string }> =>
+  promisify(exec)(command, { windowsHide: true, ...options }) as any;
 
 /**
  * Sanitize shell argument to prevent OS command injection.

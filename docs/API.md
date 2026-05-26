@@ -97,19 +97,27 @@ Membuat order pemeriksaan radiologi baru dan mengirimkan ServiceRequest ke SATUS
 * **Request Body**:
   ```json
   {
-    "encounterId": "2823b811-fb83-4903-a178-0cb95c808796",
-    "mrn": "102-39-44",
-    "locationId": "L001",
-    "requesterPractitionerId": "N100021",
-    "radiologistPractitionerId": "N100022",
-    "examCode": "XR_CHEST",
-    "timeOrdered": "2026-05-26T09:15:00.000Z",
-    "diagnosa": {
-      "code": "R05",
-      "display": "Cough"
+    "encounterId": "ff616031-805f-490c-a7a3-6440bfe12e7a",
+    "mrn": "0141878",
+    "name": "Ahmad Mustofa Aji",
+    "radLocationId": "bae68116-c1ac-4e55-9790-532b5b2d24cf",
+    "requester": {
+      "pratictionerId": "1004XXXX",
+      "pratictionerName": "dr. Soni Abdullah, Sp.JP",
+      "department": "Poli Spesialis Jantung"
     },
-    "observation": "Batuk berdahak lebih dari 2 minggu",
-    "diagnosticReport": "Suspect tuberculosis"
+    "performer": {
+      "pratictionerId": "1004XXXX",
+      "pratictionerName": "dr. Sungha Ali, Sp.Rad"
+    },
+    "examCode": "XR_SKULL_AP_LAT",
+    "timeOrdered": "2026-04-17T03:47:32+07:00",
+    "reasonCode": {
+      "code": "T14",
+      "display": "Injury of unspecified body region"
+    },
+    "observationText": "Calvaria tampak normal, Trabekulasi tulang normal, Tak tampak garis fracture, Bentuk dan ukuran sella, tursica normal,Tak tampak tanda-tanda peningkatan TIK, Tak tampak erosi, destruksi maupun proses osteolitik / steoblastik, Tak tampak soft tissue mass / swelling",
+    "diagnosticReportText": "Tak tampak fraktur"
   }
   ```
 * **Response (201 Created)**:
