@@ -1,0 +1,98 @@
+# ==============================================================================
+# RIS Bridge — Docker Compose
+# ==============================================================================
+# Development services for RIS Bridge.
+#
+# Usage:
+#   docker compose up -d          Start all services
+#   docker compose down           Stop all services
+#   docker compose logs -f        View logs
+#   docker compose ps             Check status
+#
+# Services:
+#   postgres    — PostgreSQL database
+#   redis       — Redis (BullMQ queues + caching)
+# ==============================================================================
+
+version: "3.8"
+
+services:
+  # --------------------------------------------------------------------------
+  # PostgreSQL Database
+  # --------------------------------------------------------------------------
+  # Primary database for RIS Bridge.
+  #
+  # Default credentials:
+  #   Database : mini_ris
+  #   Username : postgres
+  #   Password : postgres
+  #   Port     : 5432
+  #
+  # Data persisted in: postgres_data volume
+  # --------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: risbridge-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mini_ris
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mini_ris"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --------------------------------------------------------------------------
+  # Redis
+  # --------------------------------------------------------------------------
+  # Used by BullMQ for job queues and optional token caching.
+  #
+  # Port: 6379
+  # No password by default (development only).
+  #
+  # IMPORTANT: Set a password in production!
+  # --------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: risbridge-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  # --------------------------------------------------------------------------
+  # DICOM Router SATUSEHAT
+  # --------------------------------------------------------------------------
+  # Integrates with SATUSEHAT for automatic DICOM and ImagingStudy upload.
+  # --------------------------------------------------------------------------
+  dicom-router:
+    container_name: dicom-router-mini
+    image: registry.dto.kemkes.go.id/pub/dicom-router:latest
+    platform: linux/amd64
+    restart: unless-stopped
+    ports:
+      - "11112:11112"
+      - "8089:8089"
+    environment:
+      TZ: Asia/Jakarta
+    volumes:
+      - ./router.conf:/app/router.conf
+      - ./storage/dicom/incoming:/in
+      - ./logs/dicom-router:/logs
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

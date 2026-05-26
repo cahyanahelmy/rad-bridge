@@ -1,0 +1,66 @@
+{
+  "resourceType": "ServiceRequest",
+  "identifier": [
+    {
+      "system": "http://sys-ids.kemkes.go.id/acsn/{{organizationId}}",
+      "value": "{{accessionNumber}}"
+    }
+  ],
+  "status": "active",
+  "intent": "order",
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "363679005",
+          "display": "Imaging"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "{{loincCode}}",
+        "display": "{{loincDisplay}}"
+      }
+    ],
+    "text": "{{examName}}"
+  },
+  "subject": {
+    "reference": "Patient/{{patientId}}",
+    "display": "{{patientName}}"
+  },
+  "encounter": {
+    "reference": "Encounter/{{encounterId}}"
+  },
+  "authoredOn": "{{authoredOn}}",
+  "requester": {
+    "reference": "Practitioner/{{requesterId}}",
+    "display": "{{requesterName}}"
+  },
+  "performer": [
+    {
+      "reference": "Practitioner/{{performerId}}",
+      "display": "{{performerName}}"
+    }
+  ],
+  "reasonCode": [
+    {
+      "coding": [
+        {
+          "system": "http://hl7.org/fhir/sid/icd-10",
+          "code": "{{diagnosaCode}}",
+          "display": "{{diagnosaDisplay}}"
+        }
+      ]
+    }
+  ],
+  "locationReference": [
+    {
+      "reference": "Location/{{locationId}}"
+    }
+  ]
+}

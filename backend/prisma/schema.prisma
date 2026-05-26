@@ -1,0 +1,347 @@
+// =============================================================================
+// RIS Bridge — Prisma Schema
+// =============================================================================
+// Database schema for SATUSEHAT Imaging Interoperability Platform.
+// 12 tables covering auth, workflow, DICOM, FHIR, and infrastructure.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// Authentication & Users
+// =============================================================================
+
+enum UserRole {
+  ADMIN
+  RADIOGRAPHER
+  RADIOLOGIST
+}
+
+model User {
+  id           String        @id @default(uuid())
+  username     String        @unique
+  passwordHash String        @map("password_hash")
+  fullName     String        @map("full_name")
+  role         UserRole      @default(RADIOGRAPHER)
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  sessions     UserSession[]
+  auditLogs    AuditLog[]
+  reports      DiagnosticReport[]
+
+  @@map("users")
+}
+
+model UserSession {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  refreshToken String   @unique @map("refresh_token")
+  userAgent    String?  @map("user_agent")
+  ipAddress    String?  @map("ip_address")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("user_sessions")
+}
+
+// =============================================================================
+// Radiology Exam Master
+// =============================================================================
+
+model RadiologyExamMaster {
+  id               String   @id @default(uuid())
+  examCode         String   @unique @map("exam_code")
+  examName         String   @map("exam_name")
+  modalityCode     String   @map("modality_code")
+  loincCode        String   @map("loinc_code")
+  loincDisplay     String   @map("loinc_display")
+  kptlCode         String   @map("kptl_code")
+  kptlDisplay      String   @map("kptl_display")
+  studyDescription String   @map("study_description")
+  bodyPart         String   @map("body_part")
+  accessionPrefix  String   @map("accession_prefix")
+  active           Boolean  @default(true)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  orders RadiologyOrder[]
+
+  @@index([modalityCode])
+  @@index([active])
+  @@map("radiology_exam_master")
+}
+
+// =============================================================================
+// Radiology Orders (Central Workflow Tracking)
+// =============================================================================
+
+enum OrderStatus {
+  WAITING_UPLOAD
+  DICOM_RECEIVED
+  IMAGING_CREATED
+  REPORT_CREATED
+  PROCESSING
+  RETRYING
+  COMPLETED
+  FAILED
+}
+
+model RadiologyOrder {
+  id                       String      @id @default(uuid())
+  accessionNumber          String      @unique @map("accession_number")
+  encounterId              String      @map("encounter_id")
+  patientId                String?     @map("patient_id")
+  patientName              String?     @map("patient_name")
+  mrn                      String?
+  locationId               String?     @map("location_id")
+  requesterPractitionerId  String?     @map("requester_practitioner_id")
+  radiologistPractitionerId String?    @map("radiologist_practitioner_id")
+  examCode                 String      @map("exam_code")
+  serviceRequestId         String?     @map("service_request_id")
+  imagingstudyId           String?     @map("imagingstudy_id")
+  diagnosticreportId       String?     @map("diagnosticreport_id")
+  status                   OrderStatus @default(WAITING_UPLOAD)
+  diagnosaCode             String?     @map("diagnosa_code")
+  diagnosaDisplay          String?     @map("diagnosa_display")
+  observation              String?     @map("observasi") @db.Text
+  diagnosticReport         String?     @map("diagnostic") @db.Text
+  lastError                String?     @map("last_error") @db.Text
+  timeOrdered              DateTime?   @map("time_ordered")
+  createdAt                DateTime    @default(now()) @map("created_at")
+  updatedAt                DateTime    @updatedAt @map("updated_at")
+
+  // Storage / Retention Fields
+  totalFiles               Int         @default(0) @map("total_files")
+  totalStorageMb           Float       @default(0) @map("total_storage_mb")
+  totalStorageBytes        BigInt      @default(0) @map("total_storage_bytes")
+  storagePath              String?     @map("storage_path")
+  cleanupCandidate         Boolean     @default(false) @map("cleanup_candidate")
+  filesDeleted             Boolean     @default(false) @map("files_deleted")
+  filesDeletedAt           DateTime?   @map("files_deleted_at")
+  deletionReason           String?     @map("deletion_reason")
+  completedAt              DateTime?   @map("completed_at")
+
+  exam         RadiologyExamMaster @relation(fields: [examCode], references: [examCode])
+  dicomFiles   DicomFile[]
+  reports      DiagnosticReport[]
+  satusehatLogs SatusehatLog[]
+
+  @@index([status])
+  @@index([encounterId])
+  @@index([patientId])
+  @@index([serviceRequestId])
+  @@index([createdAt])
+  @@map("radiology_orders")
+}
+
+// =============================================================================
+// DICOM Files
+// =============================================================================
+
+model DicomFile {
+  id                String   @id @default(uuid())
+  orderId           String   @map("order_id")
+  originalPath      String   @map("original_path")
+  processedPath     String?  @map("processed_path")
+  fileName          String   @map("file_name")
+  fileSize          BigInt   @map("file_size")
+  processed         Boolean  @default(false)
+  sentToRouter      Boolean  @default(false) @map("sent_to_router")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Extraction & Retention Fields
+  studyInstanceUid  String?  @map("study_instance_uid")
+  seriesInstanceUid String?  @map("series_instance_uid")
+  sopInstanceUid    String?  @map("sop_instance_uid")
+  fileSizeBytes     BigInt?  @map("file_size_bytes")
+  fileSizeMb        Float?   @map("file_size_mb")
+  modalityCode      String?  @map("modality_code")
+  accessionNumber   String?  @map("accession_number")
+  storagePath       String?  @map("storage_path")
+  deletedAt         DateTime? @map("deleted_at")
+  isDeleted         Boolean  @default(false) @map("is_deleted")
+  deleteReason      String?  @map("delete_reason")
+
+  order RadiologyOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([processed])
+  @@map("dicom_files")
+}
+
+// =============================================================================
+// Diagnostic Reports
+// =============================================================================
+
+model DiagnosticReport {
+  id                String   @id @default(uuid())
+  orderId           String   @map("order_id")
+  radiologistId     String   @map("radiologist_id")
+  observation       String?  @map("observasi") @db.Text
+  diagnosticReport  String?  @map("diagnostic") @db.Text
+  satusehatId       String?  @map("satusehat_id")
+  sentToSatusehat   Boolean  @default(false) @map("sent_to_satusehat")
+  sentAt            DateTime? @map("sent_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  order       RadiologyOrder @relation(fields: [orderId], references: [id])
+  radiologist User           @relation(fields: [radiologistId], references: [id])
+
+  @@index([orderId])
+  @@index([radiologistId])
+  @@index([sentToSatusehat])
+  @@map("diagnostic_reports")
+}
+
+// =============================================================================
+// Webhook Logs
+// =============================================================================
+
+model WebhookLog {
+  id              String   @id @default(uuid())
+  accessionNumber String?  @map("accession_number")
+  payload         String   @db.Text
+  status          String   @default("received")
+  processedAt     DateTime? @map("processed_at")
+  error           String?  @db.Text
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([accessionNumber])
+  @@index([status])
+  @@index([createdAt])
+  @@map("webhook_logs")
+}
+
+// =============================================================================
+// SATUSEHAT Logs
+// =============================================================================
+
+model SatusehatLog {
+  id              String   @id @default(uuid())
+  orderId         String   @map("order_id")
+  resourceType    String   @map("resource_type") // e.g. ServiceRequest, Observation, DiagnosticReport
+  requestBody     String   @db.Text @map("request_body")
+  responseBody    String?  @db.Text @map("response_body")
+  status          String   // e.g. SUCCESS, FAILED
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  order           RadiologyOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([createdAt])
+  @@map("satusehat_logs")
+}
+
+// =============================================================================
+// API Logs
+// =============================================================================
+
+model ApiLog {
+  id          String   @id @default(uuid())
+  method      String
+  path        String
+  statusCode  Int      @map("status_code")
+  durationMs  Int      @map("duration_ms")
+  userId      String?  @map("user_id")
+  ip          String?
+  userAgent   String?  @map("user_agent")
+  requestBody String?  @map("request_body") @db.Text
+  error       String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([path])
+  @@index([statusCode])
+  @@index([createdAt])
+  @@map("api_logs")
+}
+
+// =============================================================================
+// Accession Sequences
+// =============================================================================
+
+model AccessionSequence {
+  id         String   @id @default(uuid())
+  prefix     String
+  date       String   // YYYYMMDD
+  currentSeq Int      @default(0) @map("current_seq")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([prefix, date])
+  @@map("accession_sequences")
+}
+
+// =============================================================================
+// Audit Logs
+// =============================================================================
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  action    String
+  resource  String
+  resourceId String? @map("resource_id")
+  details   String?  @db.Text
+  ip        String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// =============================================================================
+// Failed Jobs
+// =============================================================================
+
+model FailedJob {
+  id        String   @id @default(uuid())
+  queueName String   @map("queue_name")
+  jobId     String   @map("job_id")
+  jobName   String?  @map("job_name")
+  payload   String   @db.Text
+  error     String   @db.Text
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([queueName])
+  @@index([createdAt])
+  @@map("failed_jobs")
+}
+
+// =============================================================================
+// Infrastructure Logs
+// =============================================================================
+
+model InfrastructureLog {
+  id        String   @id @default(uuid())
+  service   String
+  action    String
+  status    String
+  details   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([service])
+  @@index([action])
+  @@index([createdAt])
+  @@map("infrastructure_logs")
+}
